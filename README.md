@@ -12,6 +12,24 @@ Tools that will be used -
 2. Firebase for analytics, cloud-based storage, and potentially updating the ML model dynamically if needed
 3. PyTorch: Vision Transformers and Computer Vision
 
+Key features of this application are –
+
+For Users:
+1. Register and log complaints with photo attachments
+2. Real-time complaint status updates
+3. Easy tracking of issue resolution
+
+For Administrators:
+1. Receive and manage complaints
+2. AI-powered workface allocation based on severity
+3. Mark complaints as resolved only after verification
+
+
+
+
+
+
+
 
 
 
