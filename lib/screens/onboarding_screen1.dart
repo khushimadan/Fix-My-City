@@ -52,7 +52,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                            'Report issues like potholes,\ngarbage, street lights or\n drainage system',
+                            'Report issues like water logging,\ngarbage, street lights or\n stray dogs',
                             style: TextStyle(
                                 color: Color(0xFFD1D1D1), fontSize: 16),
                             textAlign: TextAlign.center),
