@@ -121,8 +121,18 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(color: emailError == null
+                        ? Colors.grey
+                        : Colors.red),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(color: emailError == null
+                        ? Colors.blue
+                        : Colors.red),
                   ),
                   errorText: emailError,
+
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
