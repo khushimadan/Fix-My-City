@@ -136,7 +136,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   backgroundColor: const Color(0xFF009944),
                   foregroundColor: Colors.white,
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 131, vertical: 15),
+                  const EdgeInsets.symmetric(horizontal: 130, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
