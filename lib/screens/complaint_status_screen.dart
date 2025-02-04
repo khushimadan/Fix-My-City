@@ -1,45 +1,77 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ComplaintStatusScreen extends StatelessWidget {
   const ComplaintStatusScreen({super.key});
 
+  static const List<String> complaintCategories = [
+    "stray_dogs",
+    "garbage",
+    "street_lights",
+    "water_logging"
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false, // Prevent back navigation
-      child: Scaffold(
-        appBar: AppBar(
-          foregroundColor: Colors.white,
-          backgroundColor: const Color(0xFF009944),
-          automaticallyImplyLeading: false,
-          title: const Text("Complaint Status",
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
-          centerTitle: true,
-          elevation: 0,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              _buildComplaintItem("Complaint No - 12345", "Pending"),
-              _buildComplaintItem("Complaint No - 56789", "Resolved"),
-            ],
-          ),
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Scaffold(
+        body: Center(child: Text("Please log in to see complaints.")),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text("Complaint Status"), backgroundColor: Colors.green),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FutureBuilder<List<QuerySnapshot>>(
+          future: _fetchAllComplaints(user.uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text("No complaints found."));
+            }
+
+            final complaints = snapshot.data!.expand((qSnap) => qSnap.docs).toList();
+
+            return ListView.builder(
+              itemCount: complaints.length,
+              itemBuilder: (context, index) {
+                var complaint = complaints[index];
+
+                return _buildComplaintItem(
+                  complaint["complaintNo"].toString(),
+                  complaint["address"],
+                  complaint["description"],
+                  complaint["status"],
+                );
+              },
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildComplaintItem(String complaintNumber, String status) {
+  Future<List<QuerySnapshot>> _fetchAllComplaints(String userId) async {
+    return Future.wait(complaintCategories.map((category) =>
+        FirebaseFirestore.instance.collection(category)
+            .where("userId", isEqualTo: userId)
+            .orderBy("timestamp", descending: true)
+            .get()
+    ));
+  }
+
+  Widget _buildComplaintItem(String complaintNo, String location, String issue, String status) {
     return Card(
       child: ListTile(
-        title: Text(complaintNumber),
-        subtitle: const Text("Location: XYZ Street\nIssue: Garbage Collection"),
-        trailing: Chip(
-            label: Text(status),
-            backgroundColor: status == "Pending"
-                ? Colors.red.shade400
-                : Colors.green.shade400),
+        title: Text("Complaint No - $complaintNo"),
+        subtitle: Text("Location: $location\nIssue: $issue"),
+        trailing: Chip(label: Text(status), backgroundColor: status == "Pending" ? Colors.red : Colors.green),
       ),
     );
   }
