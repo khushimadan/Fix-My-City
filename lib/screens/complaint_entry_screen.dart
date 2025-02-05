@@ -11,10 +11,10 @@ class ComplaintEntryScreen extends StatefulWidget {
   const ComplaintEntryScreen({super.key, required this.problem});
 
   @override
-  _ComplaintEntryScreenState createState() => _ComplaintEntryScreenState();
+  ComplaintEntryScreenState createState() => ComplaintEntryScreenState();
 }
 
-class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
+class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   File? _selectedImage;
@@ -68,7 +68,6 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       TaskSnapshot taskSnapshot = await uploadTask;
       return await taskSnapshot.ref.getDownloadURL();
     } catch (e) {
-      print("Error uploading image: $e");
       return null;
     }
   }
@@ -81,7 +80,6 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print("Location services are disabled.");
       return null;
     }
 
@@ -90,22 +88,17 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        print("Location permissions are denied.");
         return null;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      print("Location permissions are permanently denied.");
       return null;
     }
 
     // Get user location
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-
-    print("User location: ${position.latitude}, ${position.longitude}");
-
     return GeoPoint(position.latitude, position.longitude);
   }
 
@@ -134,7 +127,7 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       GeoPoint? userLocation = await _getUserLocation();
       if (userLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Could not fetch location.")),
+          SnackBar(content: Text("Could not fetch location")),
         );
         setState(() {
           _isSubmitting = false;
@@ -184,7 +177,7 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Complaint Submitted Successfully!")),
+        SnackBar(content: Text("Complaint Submitted Successfully!"),backgroundColor: Colors.green.shade400,),
       );
 
       _addressController.clear();
@@ -196,7 +189,6 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
 
       Navigator.pop(context);
     } catch (e) {
-      print("Error submitting complaint: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error submitting complaint. Try again.")),
       );
@@ -210,8 +202,11 @@ class _ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.problem),
-        backgroundColor: Colors.green,
+        title: Text(widget.problem,
+        style: TextStyle(fontFamily: 'Poppins',fontSize: 24)),
+        backgroundColor: const Color(0xFF009944),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
