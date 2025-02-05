@@ -20,9 +20,11 @@ class ComplaintStatusScreen extends StatelessWidget {
         body: Center(child: Text("Please log in to see complaints.")),
       );
     }
-
-    return Scaffold(
-      appBar: AppBar(title: Text("Complaint Status"), backgroundColor: Colors.green),
+    return PopScope(
+        canPop: false,
+        child: Scaffold(
+      appBar: AppBar(title: Text("Complaint Status",style: TextStyle(fontFamily: 'Poppins', fontSize: 24)), backgroundColor: const Color(0xFF009944),foregroundColor: Colors.white,centerTitle: true,
+      automaticallyImplyLeading: false,),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<QuerySnapshot>>(
@@ -32,8 +34,13 @@ class ComplaintStatusScreen extends StatelessWidget {
               return Center(child: CircularProgressIndicator());
             }
 
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text("No complaints found."));
+            if (!snapshot.hasData || snapshot.data == null || snapshot.data!.every((qSnap) => qSnap.docs.isEmpty)) {
+              return Center(
+                child: Text(
+                  "No complaints found",
+                  style: TextStyle(fontSize: 18, fontFamily: 'Poppins'),
+                ),
+              );
             }
 
             final complaints = snapshot.data!.expand((qSnap) => qSnap.docs).toList();
@@ -54,7 +61,7 @@ class ComplaintStatusScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 
   Future<List<QuerySnapshot>> _fetchAllComplaints(String userId) async {
@@ -71,7 +78,7 @@ class ComplaintStatusScreen extends StatelessWidget {
       child: ListTile(
         title: Text("Complaint No - $complaintNo"),
         subtitle: Text("Location: $location\nIssue: $issue"),
-        trailing: Chip(label: Text(status), backgroundColor: status == "Pending" ? Colors.red : Colors.green),
+        trailing: Chip(label: Text(status,style: TextStyle(color: Colors.white),), backgroundColor: status == "Pending" ? Colors.red.shade400 : Colors.green.shade400),
       ),
     );
   }
