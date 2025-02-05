@@ -13,8 +13,9 @@ class NotificationsScreen extends StatelessWidget {
         body: Center(child: Text("Please log in to see notifications.")),
       );
     }
-
     return PopScope(
+        canPop: false,
+        child: PopScope(
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
@@ -44,8 +45,8 @@ class NotificationsScreen extends StatelessWidget {
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Text(
-                    "No notifications found.",
-                    style: TextStyle(fontSize: 18),
+                    "No notifications yet",
+                    style: TextStyle(fontSize: 18,fontFamily: 'Poppins'),
                   ),
                 );
               }
@@ -66,17 +67,17 @@ class NotificationsScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
-  /// **Notification Card UI**
+  /// Notification Card UI
   Widget _buildNotificationItem(String message, Timestamp timestamp) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: ListTile(
-        leading: Icon(Icons.notifications, color: Colors.green),
+        leading: Icon(Icons.notifications, color: const Color(0xFF009944)),
         title: Text(
           message,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -86,7 +87,7 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  /// **Converts Firestore Timestamp to "time ago" format**
+  /// Converts Firestore Timestamp to "time ago" format
   String _getTimeAgo(DateTime date) {
     Duration difference = DateTime.now().difference(date);
 
