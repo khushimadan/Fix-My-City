@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fix_my_city/screens/login_signup_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class UserProfileScreen extends StatefulWidget {
+  const UserProfileScreen({super.key});
 
   @override
   ProfileScreenState createState() => ProfileScreenState();
 }
 
-class ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<UserProfileScreen> {
   bool isNotificationsEnabled = true; // Default toggle state
 
   @override
