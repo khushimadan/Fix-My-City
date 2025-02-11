@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fix_my_city/screens/home_screen.dart';
+import 'package:fix_my_city/screens/user_home_screen.dart';
 import 'package:fix_my_city/screens/complaint_status_screen.dart';
 import 'package:fix_my_city/screens/notifications_screen.dart';
-import 'package:fix_my_city/screens/profile_screen.dart';
+import 'package:fix_my_city/screens/user_profile_screen.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -15,10 +15,10 @@ class BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeScreen(),
+    const UserHomeScreen(),
     const ComplaintStatusScreen(),
     const NotificationsScreen(),
-    const ProfileScreen(),
+    const UserProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
