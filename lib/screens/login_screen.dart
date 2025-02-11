@@ -1,9 +1,11 @@
 import 'package:fix_my_city/screens/forgot_password_screen.dart';
 import 'package:fix_my_city/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fix_my_city/widgets/bottom_nav_bar.dart';
+import 'package:fix_my_city/widgets/user_bottom_navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fix_my_city/screens/admin_login_screen.dart';
+import 'package:fix_my_city/screens/worker_login_screen.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -103,7 +105,7 @@ class _LogInState extends State<LogIn> {
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+              padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
               child: Column(
                 children: [
                   const Align(
@@ -204,7 +206,7 @@ class _LogInState extends State<LogIn> {
                       ),
                     )
                   ]),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: logIn,
                     style: ElevatedButton.styleFrom(
@@ -241,7 +243,7 @@ class _LogInState extends State<LogIn> {
                               0xFF838383))),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     const Text(
                       "Don't have an account?",
@@ -270,6 +272,41 @@ class _LogInState extends State<LogIn> {
                       ),
                     )
                   ]),
+                  const SizedBox(height: 5),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                title: Text("Login as Admin"),
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => AdminLogIn(),
+                                  ));
+                                },
+                              ),
+                              ListTile(
+                                title: Text("Login as Worker"),
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => WorkerLogIn(),
+                                  ));
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      "Are you an employee? Login here",
+                      style: TextStyle(color: const Color(0xFF009944), fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 14),
+                    ),
+                  ),
                 ],
               ),
             ),
