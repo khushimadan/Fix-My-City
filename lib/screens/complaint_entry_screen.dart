@@ -22,7 +22,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
   bool _isSubmitting = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// **Function to Pick Image (Camera or Gallery)**
+
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
@@ -32,7 +32,6 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     }
   }
 
-  /// **Show Image Picker Options (Camera / Gallery)**
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
@@ -59,7 +58,6 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     );
   }
 
-  /// **Function to Upload Image to Firebase Storage**
   Future<String?> _uploadImage(File imageFile) async {
     try {
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
@@ -72,7 +70,6 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     }
   }
 
-  /// **Function to Get User Location**
   Future<GeoPoint?> _getUserLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -102,7 +99,6 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     return GeoPoint(position.latitude, position.longitude);
   }
 
-  /// **Function to Submit Complaint to Firestore**
   Future<void> _submitComplaint() async {
     String address = _addressController.text.trim();
     String description = _descriptionController.text.trim();
@@ -135,30 +131,28 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         return;
       }
 
-      // **Generate a Unique Complaint Number**
       int complaintNumber = DateTime.now().millisecondsSinceEpoch;
 
-      // **Choose Firestore Collection based on Complaint Type**
-      String collectionName = "";
+      String category = "";
       switch (widget.problem.toLowerCase()) {
         case "stray dogs":
-          collectionName = "stray_dogs";
+          category = "Stray Dogs";
           break;
         case "garbage collection":
-          collectionName = "garbage";
+          category = "Garbage Collection";
           break;
         case "street light":
-          collectionName = "street_lights";
+          category = "Street Lights";
           break;
         case "water logging":
-          collectionName = "water_logging";
+          category = "Water Logging";
           break;
         default:
-          collectionName = "other_complaints";
+          category = "complaints";
       }
 
-      // **Store Complaint in Firestore**
-      await FirebaseFirestore.instance.collection(collectionName).add({
+      await FirebaseFirestore.instance.collection("complaints").add({
+        "category": category,
         "userId": FirebaseAuth.instance.currentUser?.uid,
         "complaintNo": complaintNumber,
         "address": address,
@@ -169,7 +163,6 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         "timestamp": FieldValue.serverTimestamp(),
       });
 
-      // **Store Notification in Firestore**
       await FirebaseFirestore.instance.collection("notifications").add({
         "userId": FirebaseAuth.instance.currentUser?.uid,
         "message": "Your complaint No-$complaintNumber has been submitted successfully.",
