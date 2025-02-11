@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fix_my_city/screens/complaint_entry_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class UserHomeScreen extends StatelessWidget {
+  const UserHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
