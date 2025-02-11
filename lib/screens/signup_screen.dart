@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fix_my_city/widgets/bottom_nav_bar.dart';
+import 'package:fix_my_city/widgets/user_bottom_navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -101,7 +101,7 @@ class _SignUpState extends State<SignUp> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+            padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
             child: Column(
               children: [
                 const Align(
