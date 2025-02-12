@@ -184,7 +184,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           centerTitle: true,
           backgroundColor: const Color(0xFF009944),
           foregroundColor: Colors.white,
-          title: const Text("Admin Home", style: TextStyle(fontSize: 24)),
+          title: const Text("Home", style: TextStyle(fontSize: 24)),
         ),
         body: Column(
           children: [
