@@ -25,7 +25,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         .where('email', isEqualTo: email.toLowerCase())
         .get();
 
-    return userSnapshot.docs.isNotEmpty || adminSnapshot.docs.isNotEmpty;
+    final workerSnapshot = await FirebaseFirestore.instance
+        .collection('workers')
+        .where('email', isEqualTo: email.toLowerCase())
+        .get();
+
+    return userSnapshot.docs.isNotEmpty || adminSnapshot.docs.isNotEmpty || workerSnapshot.docs.isNotEmpty;
   }
 
   Future<void> sendPasswordResetEmail(String email) async {
