@@ -1,6 +1,6 @@
 import 'package:fix_my_city/screens/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fix_my_city/widgets/user_bottom_navbar.dart';
+import 'package:fix_my_city/widgets/worker_bottom_navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -20,7 +20,7 @@ class _LogInState extends State<WorkerLogIn> {
 
   Future<bool> doesUserExist(String email) async {
     final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
+        .collection('workers')
         .where('email', isEqualTo: email.toLowerCase())
         .get();
 
@@ -56,7 +56,7 @@ class _LogInState extends State<WorkerLogIn> {
     bool userExists = await doesUserExist(email);
     if (!userExists) {
       setState(() {
-        emailError = 'No account found for this email. Please sign up.';
+        emailError = 'No account found for this email.';
       });
       return;
     }
@@ -68,7 +68,7 @@ class _LogInState extends State<WorkerLogIn> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-              const BottomNavBar()),
+              const WorkerBottomNavBar()),
         );
       }
     } on FirebaseAuthException catch (e) {
