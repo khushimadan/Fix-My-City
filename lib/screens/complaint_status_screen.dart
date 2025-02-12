@@ -60,7 +60,7 @@ class ComplaintStatusScreen extends StatelessWidget {
                   return _buildComplaintItem(
                     complaint["complaintNo"]?.toString() ?? "N/A",
                     complaint["address"] ?? "Unknown Location",
-                    complaint["description"] ?? "No Description",
+                    complaint["category"] ?? "Complaint",
                     complaint["status"] ?? "Unknown Status",
                   );
                 },
