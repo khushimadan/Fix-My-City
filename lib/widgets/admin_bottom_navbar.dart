@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fix_my_city/screens/admin_home_screen.dart';
-import 'package:fix_my_city/screens/admin_profile_screen.dart';
+import 'package:fix_my_city/screens/profile_screen.dart';
 
 class AdminBottomNavBar extends StatefulWidget {
   const AdminBottomNavBar({super.key});
@@ -14,7 +14,7 @@ class BottomNavBarState extends State<AdminBottomNavBar> {
 
   final List<Widget> _screens = [
     const AdminHomeScreen(),
-    AdminProfileScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
