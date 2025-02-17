@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fix_my_city/screens/worker_home_screen.dart';
 import 'package:fix_my_city/screens/complaint_status_screen.dart';
 import 'package:fix_my_city/screens/notifications_screen.dart';
-import 'package:fix_my_city/screens/user_profile_screen.dart';
+import 'package:fix_my_city/screens/profile_screen.dart';
 
 class WorkerBottomNavBar extends StatefulWidget {
   const WorkerBottomNavBar({super.key});
@@ -18,7 +18,7 @@ class BottomNavBarState extends State<WorkerBottomNavBar> {
     const WorkerHomeScreen(),
     const ComplaintStatusScreen(),
     const NotificationsScreen(),
-    UserProfileScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
