@@ -147,7 +147,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
           category = "Water Logging";
           break;
         default:
-          category = "complaints";
+          category = "Complaints";
       }
 
       await FirebaseFirestore.instance.collection("complaints").add({
@@ -169,7 +169,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Complaint Submitted Successfully!"),backgroundColor: Colors.green.shade400,),
+        SnackBar(content: Text("Complaint Submitted Successfully!"), backgroundColor: Colors.green.shade400),
       );
 
       _addressController.clear();
@@ -193,64 +193,65 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(widget.problem,
-        style: TextStyle(fontFamily: 'Poppins',fontSize: 24)),
+        title: Text(widget.problem, style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
         backgroundColor: const Color(0xFF009944),
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Upload Image Button
-            Center(
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.camera_alt),
-                label: Text("Upload Image"),
-                onPressed: _showImagePickerOptions,
-              ),
-            ),
-            const SizedBox(height: 15),
-
-            // Image Preview
-            if (_selectedImage != null)
+      body: SingleChildScrollView( 
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Center(
-                child: Image.file(_selectedImage!, height: 150),
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.camera_alt),
+                  label: Text("Upload Image"),
+                  onPressed: _showImagePickerOptions,
+                ),
               ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-            // Address Field
-            TextField(
-              controller: _addressController,
-              decoration: InputDecoration(
-                labelText: "Address",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 15),
+              if (_selectedImage != null)
+                Center(
+                  child: Image.file(_selectedImage!, height: 150),
+                ),
+              const SizedBox(height: 20),
 
-            // Description Field
-            TextField(
-              controller: _descriptionController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                labelText: "Complaint Description",
-                border: OutlineInputBorder(),
+              TextField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: "Address",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 25),
+              const SizedBox(height: 15),
 
-            // Submit Button
-            Center(
-              child: ElevatedButton(
-                onPressed: _submitComplaint,
-                child: Text("Submit"),
+              ConstrainedBox( 
+                constraints: BoxConstraints(maxHeight: 150),
+                child: TextField(
+                  controller: _descriptionController,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    labelText: "Complaint Description",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 25),
+
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitComplaint,
+                  child: _isSubmitting ? CircularProgressIndicator() : Text("Submit"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
