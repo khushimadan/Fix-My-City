@@ -6,7 +6,7 @@ Problem Statement - The current manual system for reporting issues like Garbage 
 
 FixMyCity is designed to empower citizens by providing a seamless platform to report civic issues. This app allows users to easily register complaints by uploading images and details of the affected areas, ensuring that local authorities can quickly identify and address these problems. By enabling real-time tracking and updates on the status of their complaints, the app fosters transparency and accountability, contributing to the overall development and improvement of urban infrastructure. This solution aims to create smarter, safer, and more sustainable cities for all residents.
 
-Figma Link for prototype - https://www.figma.com/design/wNC29tbOgDAyEqDqPiXp8U/FixMyCity?node-id=2-2&t=DT3fbb9MicQVj1gr-1
+Figma link for Prototype - https://www.figma.com/design/wNC29tbOgDAyEqDqPiXp8U/FixMyCity?node-id=2-2&t=DT3fbb9MicQVj1gr-1
 
 Tools that will be used - 
 
