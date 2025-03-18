@@ -82,6 +82,21 @@ class ComplaintStatusScreen extends StatelessWidget {
   }
 
   Widget _buildComplaintItem(String complaintNo, String location, String issue, String status) {
+    Color statusColor;
+    // Assign color based on status
+    switch (status){
+      case "Pending":
+        statusColor = Colors.red.shade400;
+        break;
+      case "In Progress":
+        statusColor = Colors.yellow.shade700;
+        break;
+      case "Completed":
+        statusColor = Colors.green.shade400;
+        break;
+      default:
+        statusColor = Colors.grey.shade400;
+    }
     return Card(
       child: ListTile(
         title: Text("Complaint No - $complaintNo"),
@@ -91,7 +106,7 @@ class ComplaintStatusScreen extends StatelessWidget {
             status,
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: status == "Pending" ? Colors.red.shade400 : Colors.green.shade400,
+          backgroundColor: statusColor,
         ),
       ),
     );
