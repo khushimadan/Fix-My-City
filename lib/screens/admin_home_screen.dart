@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:fix_my_city/screens/manage_complaint_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -89,19 +90,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             data['imageUrl'] != null && data['imageUrl'].isNotEmpty
-                ? FadeInImage.assetNetwork(
-                    placeholder: 'images/logo.png',
-                    image: data['imageUrl'],
+                ? FutureBuilder(
+              future: precacheImage(NetworkImage(data['imageUrl']), context),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Image.network(
+                    data['imageUrl'],
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
-                    imageErrorBuilder: (context, error, stackTrace) {
+                    errorBuilder: (context, error, stackTrace) {
                       return const Icon(Icons.image_not_supported,
                           size: 50, color: Colors.grey);
                     },
-                  )
+                  );
+                } else {
+                  return const SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            )
                 : const Icon(Icons.image_not_supported,
-                    size: 50, color: Colors.grey),
+                size: 50, color: Colors.grey),
             const SizedBox(height: 10),
             Text(data['description'] ?? "No description available"),
             Text("Status: ${data['status'] ?? 'Pending'}",
@@ -109,6 +122,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ],
         ),
         actions: [
+          TextButton(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ManageComplaintScreen(data:data)),);}, child: const Text("Manage Complaint")),
           TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text("Close")),
@@ -116,6 +130,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
+
 
   Future<void> _moveCameraToMarkers(Set<Marker> markers) async {
     final GoogleMapController controller = await _controller.future;
