@@ -159,11 +159,23 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
         child: ListView(
           children: [
             Center(
-              child: Image.network(
-                widget.data['imageUrl'],
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 250,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FullScreenImage(
+                        imageUrl: widget.data['imageUrl'],
+                      ),
+                    ),
+                  );
+                },
+                child: Image.network(
+                  widget.data['imageUrl'],
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 250,
+                ),
               ),
             ),
             const SizedBox(height: 15),
@@ -334,6 +346,31 @@ class WorkerSelectionDialogState extends State<WorkerSelectionDialog> {
           child: const Text("Assign"),
         ),
       ],
+    );
+  }
+}
+
+// New Screen to Display Full-Size Image
+class FullScreenImage extends StatelessWidget {
+  final String imageUrl;
+  const FullScreenImage({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          panEnabled: true, // Allow panning
+          minScale: 0.5,
+          maxScale: 4.0, // Zoom in up to 4x
+          child: Image.network(imageUrl),
+        ),
+      ),
     );
   }
 }
