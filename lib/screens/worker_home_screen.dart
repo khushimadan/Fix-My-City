@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fix_my_city/screens/view_complaint_screen.dart';
 
 class WorkerHomeScreen extends StatefulWidget {
   const WorkerHomeScreen({super.key});
@@ -40,10 +41,10 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
     try {
       QuerySnapshot complaints = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('assignedWorker', isEqualTo: loggedInWorkerId)
+          .where('assignedWorkers', arrayContains: loggedInWorkerId)
           .get();
 
-      Set<Marker> newMarkers = _processMarkers(
+    Set<Marker> newMarkers = _processMarkers(
         complaints.docs.map((doc) => doc.data() as Map<String, dynamic>).toList(),
       );
 
@@ -92,15 +93,27 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             data['imageUrl'] != null && data['imageUrl'].isNotEmpty
-                ? FadeInImage.assetNetwork(
-              placeholder: 'images/logo.png',
-              image: data['imageUrl'],
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
-              imageErrorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.image_not_supported,
-                    size: 50, color: Colors.grey);
+                ? FutureBuilder(
+              future: precacheImage(NetworkImage(data['imageUrl']), context),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Image.network(
+                    data['imageUrl'],
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.image_not_supported,
+                          size: 50, color: Colors.grey);
+                    },
+                  );
+                } else {
+                  return const SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: CircularProgressIndicator(),
+                  );
+                }
               },
             )
                 : const Icon(Icons.image_not_supported,
@@ -112,6 +125,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
           ],
         ),
         actions: [
+          TextButton(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ViewComplaintScreen(data:data)),);}, child: const Text("View Complaint")),
           TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text("Close")),
@@ -154,19 +168,22 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        backgroundColor: const Color(0xFF009944),
-        foregroundColor: Colors.white,
-        title: const Text("Home", style: TextStyle(fontSize: 24)),
-      ),
-      body: GoogleMap(
-        initialCameraPosition:
-        const CameraPosition(target: universityLocation, zoom: 15),
-        markers: _markers,
-        onMapCreated: (controller) => _controller.complete(controller),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          backgroundColor: const Color(0xFF009944),
+          foregroundColor: Colors.white,
+          title: const Text("Home", style: TextStyle(fontSize: 24)),
+        ),
+        body: GoogleMap(
+          initialCameraPosition:
+          const CameraPosition(target: universityLocation, zoom: 15),
+          markers: _markers,
+          onMapCreated: (controller) => _controller.complete(controller),
+        ),
       ),
     );
   }
