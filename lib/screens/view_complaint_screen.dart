@@ -92,7 +92,6 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
     }
   }
 
-
   // Upload Image to Firebase Storage
   Future<String?> uploadImage() async {
     if (_selectedImage == null) {
@@ -101,10 +100,13 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
     }
 
     try {
-      String fileName = "${workerId}_${DateTime.now().millisecondsSinceEpoch}.jpg";
+      String fileName =
+          "${workerId}_${DateTime.now().millisecondsSinceEpoch}.jpg";
 
       // Store in "completed_work_images" folder
-      Reference storageRef = FirebaseStorage.instance.ref().child("completed_work_images/$fileName");
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child("completed_work_images/$fileName");
 
       UploadTask uploadTask = storageRef.putFile(File(_selectedImage!.path));
 
@@ -112,59 +114,112 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
 
       if (snapshot.state == TaskState.success) {
         String downloadUrl = await snapshot.ref.getDownloadURL();
-        print("Work completed image uploaded: $downloadUrl");
         return downloadUrl;
       } else {
-        print("Upload failed: ${snapshot.state}");
         showAlert("Work completed image upload failed. Try again.");
         return null;
       }
     } catch (e) {
-      print("Error uploading work completed image: $e");
       showAlert("Error: $e");
       return null;
     }
   }
 
-
-
-  // Show Alert Dialog
+  // Show Alert Dialog with Better UI
   void showAlert(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Missing Information"),
-        content: Text(message),
+        title: Row(
+          children: const [
+            Icon(Icons.error_outline, color: Colors.red),
+            SizedBox(width: 8),
+            Text("Alert", style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
+            child: const Text("OK", style: TextStyle(fontSize: 16)),
           ),
         ],
       ),
     );
   }
 
-  // Submit Feedback and Image to Firestore
+// Show Loading Dialog with a Modern Look
+  void showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 12),
+              Text(message, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+// Show Success Bottom Sheet
+  void showSuccessBottomSheet(String message) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.green.shade700,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 28),
+              const SizedBox(width: 10),
+              Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pop(context);
+    });
+  }
+
+// Submit Feedback with Updated Success UI
   Future<void> submitFeedback() async {
     if (complaintDocId == null || workerId == null) return;
 
     String feedback = feedbackController.text.trim();
     if (feedback.isEmpty || _selectedImage == null) {
-      showAlert("Please give feedback and upload an image");
+      showAlert("Please give feedback and upload an image.");
       return;
     }
 
-    setState(() {
-      isUploading = true;
-    });
+    showLoadingDialog("Submitting...");
 
-    String? imageUrl = await uploadImage(); // Upload image and get URL
+    String? imageUrl = await uploadImage();
 
     if (imageUrl == null) {
-      setState(() {
-        isUploading = false;
-      });
+      Navigator.pop(context);
       showAlert("Image upload failed. Please try again.");
       return;
     }
@@ -175,129 +230,160 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
     };
 
     try {
-      // Update Firestore
       await FirebaseFirestore.instance
           .collection('complaints')
           .doc(complaintDocId)
           .update(updateData);
 
       setState(() {
-        isUploading = false;
         _selectedImage = null;
         feedbackController.clear();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Feedback and Image submitted successfully")),
-      );
+      Navigator.pop(context);
+      showSuccessBottomSheet("Submitted successfully!");
     } catch (e) {
-      setState(() {
-        isUploading = false;
-      });
-      print("Error updating Firestore: $e");
+      Navigator.pop(context);
       showAlert("Failed to submit feedback. Please try again.");
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF009944),
-        title: const Text("View Complaint",
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
-        centerTitle: true,
-      ),
-      body: complaintDocId == null
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: ListView(
-          children: [
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FullScreenImage(
-                          imageUrl: widget.data['imageUrl']),
-                    ),
-                  );
-                },
-                child: Image.network(
-                  widget.data['imageUrl'],
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 250,
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            Text("Address: ${widget.data['address']}",
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Description: ${widget.data['description']}",
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 20),
-
-            // Image Picker Button
-            ElevatedButton.icon(
-              onPressed: showImagePickerOptions,
-              icon: const Icon(Icons.upload_file),
-              label: const Text("Upload Photo"),
-            ),
-
-            if (_selectedImage != null)
-              GestureDetector(
-                child: Image.file(_selectedImage!,
-                    height: 200, width: double.infinity, fit: BoxFit.cover),
-              ),
-
-            const SizedBox(height: 15),
-            const Text("Feedback",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            TextField(
-              controller: feedbackController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: "Enter Feedback",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Submit Button
-            ElevatedButton(
-              onPressed: isUploading ? null : submitFeedback,
-              child: isUploading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Submit"),
-            ),
-          ],
+        appBar: AppBar(
+          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFF009944),
+          title: const Text("View Complaint",
+              style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
+          centerTitle: true,
         ),
-      ),
-    );
+        body: complaintDocId == null
+            ? const Center(child: CircularProgressIndicator())
+            : Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: ListView(children: [
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FullScreenImage(
+                              imagePath: widget.data['imageUrl'], // Pass network URL
+                              isNetwork: true, // Indicate it's a network image
+                            ),
+                          ),
+                        );
+                      },
+                      child: Image.network(
+                        widget.data['imageUrl'],
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 250,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Text("Address: ${widget.data['address']}",
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text("Description: ${widget.data['description']}",
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 20),
+
+                  // Image Picker Button
+                  ElevatedButton.icon(
+                    onPressed: showImagePickerOptions,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text("Upload Photo"),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      textStyle: const TextStyle(fontSize: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  if (_selectedImage != null)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FullScreenImage(
+                              imagePath: _selectedImage!.path, // Pass local image path
+                              isNetwork: false, // Indicate it's a local image
+                            ),
+                          ),
+                        );
+                      },
+                      child: Image.file(
+                        _selectedImage!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 250,
+                      ),
+                    ),
+
+                  const SizedBox(height: 15),
+                  const Text("Feedback",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  TextField(
+                    controller: feedbackController,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      hintText: "Enter Feedback",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Submit Button
+                  ElevatedButton(
+                    onPressed: isUploading ? null : submitFeedback,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      textStyle: const TextStyle(fontSize: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: isUploading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Submit"),
+                  ),
+                ]),
+              ));
   }
 }
 
 // Full-Screen Image View
 class FullScreenImage extends StatelessWidget {
-  final String imageUrl;
-  const FullScreenImage({super.key, required this.imageUrl});
+  final String imagePath;
+  final bool isNetwork;
+
+  const FullScreenImage({super.key, required this.imagePath, required this.isNetwork});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black),
+      appBar: AppBar(backgroundColor: Colors.black, foregroundColor: Colors.white),
       body: Center(
         child: InteractiveViewer(
-          child: Image.network(imageUrl),
+          child: isNetwork
+              ? Image.network(imagePath) // Display network image
+              : Image.file(File(imagePath)), // Display local image
         ),
       ),
     );
   }
 }
+
