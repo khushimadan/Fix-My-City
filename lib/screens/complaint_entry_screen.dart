@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,6 +22,52 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isSubmitting = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> _showSubmittingDialog() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator(
+                  strokeWidth: 5,
+                  color: Colors.green, // Highlighted color
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Submitting Your Complaint...",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Please wait while we process your request.",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
@@ -108,11 +155,11 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       );
       return;
     }
-
+    _showSubmittingDialog();
     setState(() {
       _isSubmitting = true;
     });
-
+    _showSubmittingDialog();
     try {
       String? imageUrl;
       if (_selectedImage != null) {
@@ -167,7 +214,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         "message": "Your complaint No-$complaintNumber has been submitted successfully.",
         "timestamp": FieldValue.serverTimestamp(),
       });
-
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Complaint Submitted Successfully!"), backgroundColor: Colors.green.shade400),
       );
@@ -200,7 +247,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -230,7 +277,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
               ),
               const SizedBox(height: 15),
 
-              ConstrainedBox( 
+              ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: 150),
                 child: TextField(
                   controller: _descriptionController,
