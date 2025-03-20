@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -149,25 +148,43 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
     String address = _addressController.text.trim();
     String description = _descriptionController.text.trim();
 
+    // Check if image is selected
+    if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please upload an image of the issue")),
+      );
+      return;
+    }
+
     if (address.isEmpty || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please fill all fields")),
       );
       return;
     }
-    _showSubmittingDialog();
+
     setState(() {
       _isSubmitting = true;
     });
+
     _showSubmittingDialog();
+
     try {
-      String? imageUrl;
-      if (_selectedImage != null) {
-        imageUrl = await _uploadImage(_selectedImage!);
+      String? imageUrl = await _uploadImage(_selectedImage!);
+      if (imageUrl == null) {
+        Navigator.pop(context); // Dismiss dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to upload image. Please try again.")),
+        );
+        setState(() {
+          _isSubmitting = false;
+        });
+        return;
       }
 
       GeoPoint? userLocation = await _getUserLocation();
       if (userLocation == null) {
+        Navigator.pop(context); // Dismiss dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Could not fetch location")),
         );
@@ -194,7 +211,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
           category = "Water Logging";
           break;
         default:
-          category = "Complaints";
+          category = "null";
       }
 
       await FirebaseFirestore.instance.collection("complaints").add({
@@ -203,7 +220,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         "complaintNo": complaintNumber,
         "address": address,
         "description": description,
-        "imageUrl": imageUrl ?? "",
+        "imageUrl": imageUrl,
         "location": userLocation,
         "status": "Pending",
         "timestamp": FieldValue.serverTimestamp(),
@@ -214,7 +231,9 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         "message": "Your complaint No-$complaintNumber has been submitted successfully.",
         "timestamp": FieldValue.serverTimestamp(),
       });
-      Navigator.pop(context);
+
+      Navigator.pop(context); // Dismiss dialog
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Complaint Submitted Successfully!"), backgroundColor: Colors.green.shade400),
       );
@@ -228,6 +247,8 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
 
       Navigator.pop(context);
     } catch (e) {
+      Navigator.pop(context); // Dismiss dialog
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error submitting complaint. Try again.")),
       );
@@ -260,7 +281,20 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
                   onPressed: _showImagePickerOptions,
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 5),
+
+              // Add required text for image
+              if (_selectedImage == null)
+                Center(
+                  child: Text(
+                    "* Image is required",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 10),
 
               if (_selectedImage != null)
                 Center(
@@ -293,8 +327,8 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
 
               Center(
                 child: ElevatedButton(
-                  onPressed: _submitComplaint,
-                  child: _isSubmitting ? CircularProgressIndicator() : Text("Submit"),
+                  onPressed: _isSubmitting ? null : _submitComplaint,
+                  child: Text("Submit"),
                 ),
               ),
             ],
