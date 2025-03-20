@@ -14,7 +14,7 @@ class BottomNavBarState extends State<AdminBottomNavBar> {
 
   final List<Widget> _screens = [
     const AdminHomeScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
