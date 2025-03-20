@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             email = userDoc["email"] ?? "No Email";
             phone = userDoc["phone"] ?? "No Phone Number";
+            username = userDoc["username"] ?? "User";
             profileImageUrl = userDoc["profileImageUrl"] ?? "";
             isNotificationsEnabled = userDoc["notificationsEnabled"] ?? false;
             isLoading = false;
@@ -49,6 +51,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else {
       setState(() {
         isLoading = false;
+      });
+    }
+  }
+
+  Future<void> editUsername() async {
+    TextEditingController nameController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Edit Name"),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: "Enter your name",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String newName = nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  await updateUsername(newName);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> updateUsername(String name) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          "username": name,
+        }, SetOptions(merge: true)); // Ensure it merges with existing data
+
+        setState(() {
+          username = name;
+        });
+      } catch (e) {
+        print("Error updating username: $e");
+      }
+    }
+  }
+
+
+  Future<void> editPhoneNumber() async {
+    TextEditingController phoneController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Edit Phone Number"),
+          content: TextField(
+            controller: phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              hintText: "Enter your phone number",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String newPhone = phoneController.text.trim();
+                if (newPhone.isNotEmpty) {
+                  await updatePhoneNumber(newPhone);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> updatePhoneNumber(String newPhone) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        "phone": newPhone,
+      });
+      setState(() {
+        phone = newPhone;
       });
     }
   }
@@ -87,13 +192,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   : null,
             ),
             SizedBox(height: 10),
-            Text(username, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(username, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(width: 5),
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.green),
+                  onPressed: editUsername,
+                ),
+              ],
+            ),
             SizedBox(height: 5),
             Text(email, style: TextStyle(fontSize: 16, color: Colors.grey)),
             SizedBox(height: 20),
             ListTile(
               leading: Icon(Icons.phone, color: Colors.green),
               title: Text(phone),
+              trailing: IconButton(
+                icon: Icon(Icons.edit, color: Colors.green),
+                onPressed: editPhoneNumber,
+              ),
             ),
             Divider(),
             ListTile(
@@ -233,6 +352,16 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class HelpCenterScreen extends StatelessWidget {
+  final String phoneNumber = "tel:XXXXXX678326"; // Replace with actual number
+
+  void _callNumber() async {
+    if (await canLaunch(phoneNumber)) {
+      await launch(phoneNumber);
+    } else {
+      print("Could not launch $phoneNumber");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,6 +392,7 @@ class HelpCenterScreen extends StatelessWidget {
                 leading: Icon(Icons.phone, color: Colors.green),
                 title: Text("Call Us"),
                 subtitle: Text("XXXXXX678326"),
+                onTap: _callNumber, // Call function when tapped
               ),
             ),
             SizedBox(height: 10),
