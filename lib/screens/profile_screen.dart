@@ -352,13 +352,22 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class HelpCenterScreen extends StatelessWidget {
-  final String phoneNumber = "tel:XXXXXX678326"; // Replace with actual number
+  final String phoneNumber = "tel:9971310381"; // Replace with actual number
+  final String emailAddress = "mailto:help.fixmycity@gmail.com"; // Email to open in mail app
 
   void _callNumber() async {
     if (await canLaunch(phoneNumber)) {
       await launch(phoneNumber);
     } else {
       print("Could not launch $phoneNumber");
+    }
+  }
+
+  void _sendEmail() async {
+    if (await canLaunch(emailAddress)) {
+      await launch(emailAddress);
+    } else {
+      print("Could not launch $emailAddress");
     }
   }
 
@@ -392,7 +401,7 @@ class HelpCenterScreen extends StatelessWidget {
                 leading: Icon(Icons.phone, color: Colors.green),
                 title: Text("Call Us"),
                 subtitle: Text("XXXXXX678326"),
-                onTap: _callNumber, // Call function when tapped
+                onTap: _callNumber, // Calls the phone number
               ),
             ),
             SizedBox(height: 10),
@@ -403,6 +412,7 @@ class HelpCenterScreen extends StatelessWidget {
                 leading: Icon(Icons.email, color: Colors.green),
                 title: Text("Email Us"),
                 subtitle: Text("help.fixmycity@gmail.com"),
+                onTap: _sendEmail, // Opens email app
               ),
             ),
           ],
