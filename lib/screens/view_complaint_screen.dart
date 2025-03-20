@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fix_my_city/screens/full_screen_image.dart';
 
 class ViewComplaintScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -20,6 +21,7 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
   TextEditingController feedbackController = TextEditingController();
   File? _selectedImage;
   bool isUploading = false;
+  bool submitted = false;
 
   @override
   void initState() {
@@ -49,6 +51,37 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
       setState(() {
         complaintDocId = query.docs.first.id;
       });
+    }
+    fetchComplaintDetails();
+  }
+
+  Future<void> fetchComplaintDetails() async {
+    if (complaintDocId == null || workerId == null) return;
+
+    var doc = await FirebaseFirestore.instance
+        .collection('complaints')
+        .doc(complaintDocId)
+        .get();
+
+    if (doc.exists && doc.data() != null) {
+      var data = doc.data()!;
+
+      Map<String, dynamic> workerImages = data['workerImages'] != null
+          ? Map<String, dynamic>.from(data['workerImages'])
+          : {};
+
+      Map<String, dynamic> workerFeedback = data['workerFeedback'] != null
+          ? Map<String, dynamic>.from(data['workerFeedback'])
+          : {};
+
+      bool hasImage = workerImages.containsKey(workerId);
+      bool hasFeedback = workerFeedback.containsKey(workerId);
+
+      setState(() {
+        submitted = hasImage || hasFeedback;
+      });
+
+      debugPrint("Worker ID: $workerId, Has Image: $hasImage, Has Feedback: $hasFeedback, Submitted: $submitted");
     }
   }
 
@@ -155,7 +188,8 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -171,6 +205,7 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
 
 // Show Success Bottom Sheet
   void showSuccessBottomSheet(String message) {
+    submitted = true;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.green.shade700,
@@ -248,7 +283,6 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -272,7 +306,8 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => FullScreenImage(
-                              imagePath: widget.data['imageUrl'], // Pass network URL
+                              imagePath:
+                                  widget.data['imageUrl'], // Pass network URL
                               isNetwork: true, // Indicate it's a network image
                             ),
                           ),
@@ -293,97 +328,85 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
                   Text("Description: ${widget.data['description']}",
                       style: const TextStyle(fontSize: 16)),
                   const SizedBox(height: 20),
-
-                  // Image Picker Button
-                  ElevatedButton.icon(
-                    onPressed: showImagePickerOptions,
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text("Upload Photo"),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      textStyle: const TextStyle(fontSize: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                  if (submitted == true) ...[
+                    const Center(
+                      child: Text(
+                        "Waiting for Admin Approval",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
+                  ] else ...[
+                    // Image Picker Button
+                    ElevatedButton.icon(
+                      onPressed: showImagePickerOptions,
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text("Upload Photo"),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        textStyle: const TextStyle(fontSize: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
 
-                  if (_selectedImage != null)
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FullScreenImage(
-                              imagePath: _selectedImage!.path, // Pass local image path
-                              isNetwork: false, // Indicate it's a local image
+                    if (_selectedImage != null)
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenImage(
+                                imagePath: _selectedImage!
+                                    .path, // Pass local image path
+                                isNetwork: false, // Indicate it's a local image
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: Image.file(
-                        _selectedImage!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: 250,
+                          );
+                        },
+                        child: Image.file(
+                          _selectedImage!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 250,
+                        ),
+                      ),
+
+                    const SizedBox(height: 15),
+                    const Text("Feedback",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    TextField(
+                      controller: feedbackController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: "Enter Feedback",
+                        border: OutlineInputBorder(),
                       ),
                     ),
 
-                  const SizedBox(height: 15),
-                  const Text("Feedback",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  TextField(
-                    controller: feedbackController,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      hintText: "Enter Feedback",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 20),
-
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: isUploading ? null : submitFeedback,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      textStyle: const TextStyle(fontSize: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    // Submit Button
+                    ElevatedButton(
+                      onPressed: isUploading ? null : submitFeedback,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        textStyle: const TextStyle(fontSize: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
+                      child: isUploading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text("Submit"),
                     ),
-                    child: isUploading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Submit"),
-                  ),
+                  ]
                 ]),
               ));
   }
 }
-
-// Full-Screen Image View
-class FullScreenImage extends StatelessWidget {
-  final String imagePath;
-  final bool isNetwork;
-
-  const FullScreenImage({super.key, required this.imagePath, required this.isNetwork});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black, foregroundColor: Colors.white),
-      body: Center(
-        child: InteractiveViewer(
-          child: isNetwork
-              ? Image.network(imagePath) // Display network image
-              : Image.file(File(imagePath)), // Display local image
-        ),
-      ),
-    );
-  }
-}
-
