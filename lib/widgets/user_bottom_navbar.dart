@@ -18,7 +18,7 @@ class BottomNavBarState extends State<UserBottomNavBar> {
     const UserHomeScreen(),
     const ComplaintStatusScreen(),
     const NotificationsScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
