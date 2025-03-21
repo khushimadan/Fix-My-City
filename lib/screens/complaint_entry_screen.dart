@@ -284,7 +284,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
               const SizedBox(height: 5),
 
               // Add required text for image
-              if (_selectedImage == null)
+              /* if (_selectedImage == null)
                 Center(
                   child: Text(
                     "* Image is required",
@@ -293,7 +293,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
                       fontSize: 12,
                     ),
                   ),
-                ),
+                ),*/
               const SizedBox(height: 10),
 
               if (_selectedImage != null)
