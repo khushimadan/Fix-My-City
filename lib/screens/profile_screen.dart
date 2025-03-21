@@ -172,89 +172,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Account"),
-        backgroundColor: Colors.green,
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.grey.shade300,
-              backgroundImage: profileImageUrl.isNotEmpty ? NetworkImage(profileImageUrl) : null,
-              child: profileImageUrl.isEmpty
-                  ? Icon(Icons.account_circle, size: 60, color: Colors.white)
-                  : null,
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(username, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(width: 5),
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.green),
-                  onPressed: editUsername,
-                ),
-              ],
-            ),
-            SizedBox(height: 5),
-            Text(email, style: TextStyle(fontSize: 16, color: Colors.grey)),
-            SizedBox(height: 20),
-            ListTile(
-              leading: Icon(Icons.phone, color: Colors.green),
-              title: Text(phone),
-              trailing: IconButton(
-                icon: Icon(Icons.edit, color: Colors.green),
-                onPressed: editPhoneNumber,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text("Account",style:TextStyle(fontSize: 24,fontFamily: 'Poppins'),),
+          centerTitle: true,
+          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFF009944),
+        ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage: profileImageUrl.isNotEmpty ? NetworkImage(profileImageUrl) : null,
+                child: profileImageUrl.isEmpty
+                    ? Icon(Icons.account_circle, size: 60, color: Colors.white)
+                    : null,
               ),
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.notifications, color: Colors.green),
-              title: Text("Push Notifications"),
-              trailing: Switch(
-                value: isNotificationsEnabled,
-                onChanged: (value) {
-                  updateNotificationPreference(value);
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(username, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 5),
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Colors.green),
+                    onPressed: editUsername,
+                  ),
+                ],
+              ),
+              SizedBox(height: 5),
+              Text(email, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              SizedBox(height: 20),
+              ListTile(
+                leading: Icon(Icons.phone, color: Colors.green),
+                title: Text(phone),
+                trailing: IconButton(
+                  icon: Icon(Icons.edit, color: Colors.green),
+                  onPressed: editPhoneNumber,
+                ),
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.notifications, color: Colors.green),
+                title: Text("Push Notifications"),
+                trailing: Switch(
+                  value: isNotificationsEnabled,
+                  onChanged: (value) {
+                    updateNotificationPreference(value);
+                  },
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.lock, color: Colors.green),
+                title: Text("Privacy Policy"),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()));
                 },
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.lock, color: Colors.green),
-              title: Text("Privacy Policy"),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings, color: Colors.green),
-              title: Text("Settings"),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.help, color: Colors.green),
-              title: Text("Help Center"),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => HelpCenterScreen()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout, color: Colors.red),
-              title: Text("Log Out"),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.pop(context);
-              },
-            ),
-          ],
+              ListTile(
+                leading: Icon(Icons.settings, color: Colors.green),
+                title: Text("Settings"),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.help, color: Colors.green),
+                title: Text("Help Center"),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HelpCenterScreen()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.logout, color: Colors.red),
+                title: Text("Log Out"),
+                onTap: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
