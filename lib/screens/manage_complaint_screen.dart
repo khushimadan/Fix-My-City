@@ -187,6 +187,21 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
       complaintId: complaintDocId!,
       newStatus: 'Completed',
     );
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final doc = await firestore.collection('complaints').doc(complaintDocId).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      final assignedWorkers = List<String>.from(data['assignedWorkers'] ?? []);
+
+      for (final workerId in assignedWorkers) {
+        await firestore.collection('notifications').add({
+          'workerId': workerId,
+          'message': "Your submission has been approved.",
+          'timestamp': FieldValue.serverTimestamp(),
+          'type': 'worker',
+        });
+      }
+    }
 
     fetchComplaintDetails();
   }
@@ -499,5 +514,15 @@ Future<void> sendNotificationOnStatusChange({
     'message': message,
     'timestamp': FieldValue.serverTimestamp(),
     'type': 'user',
+  });
+}
+Future<void> notifyWorkerSubmission({
+  required String workerId,
+}) async {
+  await FirebaseFirestore.instance.collection('notifications').add({
+    'workerId': workerId,
+    'message': "You have submitted the complaint.",
+    'timestamp': FieldValue.serverTimestamp(),
+    'type': 'worker',
   });
 }
