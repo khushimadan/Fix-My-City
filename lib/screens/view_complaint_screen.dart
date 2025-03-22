@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fix_my_city/screens/full_screen_image.dart';
-import 'package:fix_my_city/screens/manage_complaint_screen.dart';
 
 class ViewComplaintScreen extends StatefulWidget {
   final Map<String, dynamic> data;
