@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fix_my_city/screens/full_screen_image.dart';
 
 class ManageComplaintScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -165,7 +166,8 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => FullScreenImage(
-                        imageUrl: widget.data['imageUrl'],
+                        imagePath: widget.data['imageUrl'],
+                        isNetwork: true,
                       ),
                     ),
                   );
@@ -346,31 +348,6 @@ class WorkerSelectionDialogState extends State<WorkerSelectionDialog> {
           child: const Text("Assign"),
         ),
       ],
-    );
-  }
-}
-
-// New Screen to Display Full-Size Image
-class FullScreenImage extends StatelessWidget {
-  final String imageUrl;
-  const FullScreenImage({super.key, required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Center(
-        child: InteractiveViewer(
-          panEnabled: true, // Allow panning
-          minScale: 0.5,
-          maxScale: 4.0, // Zoom in up to 4x
-          child: Image.network(imageUrl),
-        ),
-      ),
     );
   }
 }
