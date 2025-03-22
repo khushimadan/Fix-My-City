@@ -204,7 +204,7 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
         case "garbage collection":
           category = "Garbage";
           break;
-        case "street light":
+        case "street lights":
           category = "Street Lights";
           break;
         case "water logging":
