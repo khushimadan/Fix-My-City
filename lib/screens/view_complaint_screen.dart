@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fix_my_city/screens/full_screen_image.dart';
+import 'package:fix_my_city/screens/manage_complaint_screen.dart';
 
 class ViewComplaintScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -270,6 +271,8 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
           .doc(complaintDocId)
           .update(updateData);
 
+      await notifyWorkerSubmission(workerId: workerId!);
+
       setState(() {
         _selectedImage = null;
         feedbackController.clear();
@@ -409,4 +412,12 @@ class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
                 ]),
               ));
   }
+}
+Future<void> notifyWorkerSubmission({required String workerId}) async {
+  await FirebaseFirestore.instance.collection('notifications').add({
+    'workerId': workerId,
+    'message': "You have submitted the complaint.",
+    'timestamp': FieldValue.serverTimestamp(),
+    'type': 'worker',
+  });
 }
