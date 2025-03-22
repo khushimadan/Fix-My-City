@@ -63,12 +63,26 @@ class _LogInState extends State<WorkerLogIn> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email, password: password);
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-              const WorkerBottomNavBar()),
+      final snapshot = await FirebaseFirestore.instance
+          .collection('workers')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs.first;
+        final workerId = doc['workerId'];
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => WorkerBottomNavBar(workerId: workerId),
+            ),
+          );
+        }
+      } else {
+        // just in case
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Worker data not found.")),
         );
       }
     } on FirebaseAuthException catch (e) {
