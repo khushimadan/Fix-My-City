@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fix_my_city/screens/admin_home_screen.dart';
 import 'package:fix_my_city/screens/profile_screen.dart';
+import 'package:fix_my_city/screens/admin_notification_screen.dart';
+
 
 class AdminBottomNavBar extends StatefulWidget {
   const AdminBottomNavBar({super.key});
@@ -14,6 +16,7 @@ class BottomNavBarState extends State<AdminBottomNavBar> {
 
   final List<Widget> _screens = [
     const AdminHomeScreen(),
+    AdminNotificationsScreen(),
     ProfileScreen(),
   ];
 
@@ -30,6 +33,7 @@ class BottomNavBarState extends State<AdminBottomNavBar> {
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         currentIndex: _selectedIndex,
