@@ -420,4 +420,10 @@ Future<void> notifyWorkerSubmission({required String workerId}) async {
     'timestamp': FieldValue.serverTimestamp(),
     'type': 'worker',
   });
+
+  await FirebaseFirestore.instance.collection('notifications').add({
+    'type': 'admin',
+    'message': "Worker has submitted feedback.",
+    'timestamp': FieldValue.serverTimestamp(),
+  });
 }
