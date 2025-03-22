@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:fix_my_city/screens/worker_home_screen.dart';
 import 'package:fix_my_city/screens/complaint_status_screen.dart';
-import 'package:fix_my_city/screens/notifications_screen.dart';
 import 'package:fix_my_city/screens/profile_screen.dart';
+import 'package:fix_my_city/screens/worker_notification_screen.dart'; // ✅ Import this
 
 class WorkerBottomNavBar extends StatefulWidget {
-  const WorkerBottomNavBar({super.key});
+  final String workerId; // ✅ Required to show notifications for this worker
+
+  const WorkerBottomNavBar({super.key, required this.workerId});
 
   @override
-  BottomNavBarState createState() => BottomNavBarState();
+  State<WorkerBottomNavBar> createState() => _WorkerBottomNavBarState();
 }
 
-class BottomNavBarState extends State<WorkerBottomNavBar> {
+class _WorkerBottomNavBarState extends State<WorkerBottomNavBar> {
   int _selectedIndex = 0;
+  late List<Widget> _screens;
 
-  final List<Widget> _screens = [
-    const WorkerHomeScreen(),
-    const ComplaintStatusScreen(),
-    const NotificationsScreen(),
-    ProfileScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const WorkerHomeScreen(),
+      const ComplaintStatusScreen(),
+      WorkerNotificationsScreen(workerId: widget.workerId), // ✅ Pass workerId
+      ProfileScreen(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,17 +39,16 @@ class BottomNavBarState extends State<WorkerBottomNavBar> {
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Status'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Notifications'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Status'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
     );
   }
