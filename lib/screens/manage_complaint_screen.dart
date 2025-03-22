@@ -6,6 +6,8 @@ class ManageComplaintScreen extends StatefulWidget {
   final Map<String, dynamic> data;
   const ManageComplaintScreen({super.key, required this.data});
 
+  String? get complaintDocId => null;
+
   @override
   State<ManageComplaintScreen> createState() => _ManageComplaintScreenState();
 }
@@ -17,11 +19,14 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
   bool complaintClosed = false;
   String? complaintDocId;
   List<String> workerImageUrls = [];
+  Map<String, String> workerImages = {}; // Stores workerId -> imageUrl
+  Map<String, String> workerFeedback = {}; // Stores workerId -> feedback
 
   @override
   void initState() {
     super.initState();
     fetchComplaintDocId();
+    fetchComplaintData();
   }
 
   Future<void> fetchComplaintDocId() async {
@@ -35,10 +40,39 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
         complaintDocId = query.docs.first.id;
       });
 
+      await fetchComplaintData(); // Now correctly runs after complaintDocId is set
       await fetchComplaintDetails();
       await fetchWorkers();
     }
   }
+
+
+  Future<void> fetchComplaintData() async {
+    if (complaintDocId == null) return;
+
+    try {
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('complaints')
+          .doc(complaintDocId) // Ensure correct complaint ID is used
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+        setState(() {
+          workerImages = Map<String, String>.from(data['workerImages'] ?? {});
+          workerFeedback = Map<String, String>.from(data['workerFeedback'] ?? {});
+        });
+
+        // Debugging logs to check retrieved data
+        print("Worker Images: $workerImages");
+        print("Worker Feedback: $workerFeedback");
+      }
+    } catch (e) {
+      print("Error fetching complaint data: $e");
+    }
+  }
+
 
   Future<void> fetchWorkers() async {
     try {
@@ -235,41 +269,74 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: selectedWorkers.map((worker) {
                     String workerId = worker['workerId'];
-                    String imageUrl = workerImageUrls.isNotEmpty && workerImageUrls.length > selectedWorkers.indexOf(worker)
-                        ? workerImageUrls[selectedWorkers.indexOf(worker)]
-                        : ''; // If image URL exists, show it.
+                    String? imageUrl = workerImages.containsKey(workerId) ? workerImages[workerId] : null;
+                    String? feedbackText = workerFeedback.containsKey(workerId) ? workerFeedback[workerId] : null;
+
                     return ListTile(
                       title: Text(worker['name'], style: const TextStyle(fontSize: 16)),
                       subtitle: Row(
                         children: [
-                          Text(imageUrl.isNotEmpty ? "View Image" : "Image not uploaded",
-                              style: TextStyle(
-                                color: imageUrl.isNotEmpty ? Colors.blue : Colors.red[400],
-                                decoration: imageUrl.isNotEmpty ? TextDecoration.underline : null,
-                              )),
-                          const SizedBox(width: 10),
-                          if (imageUrl.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.image, color: Colors.blue),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text("Worker Image"),
-                                    content: Image.network(imageUrl),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text("Close"),
-                                      ),
-                                    ],
+                          // Image display logic
+                          imageUrl != null
+                              ? GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FullScreenImage(
+                                    imagePath: imageUrl,
+                                    isNetwork: true,
                                   ),
-                                );
-                              },
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.image, color: Colors.blue),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "View Image",
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
                             ),
+                          )
+                              : Text("Image not uploaded", style: TextStyle(color: Colors.red[400])),
+
+                          const SizedBox(width: 15),
+
+                          // Feedback display logic
+                          feedbackText != null
+                              ? GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FeedbackScreen(
+                                    complaintDocId: complaintDocId!,
+                                    workerId: workerId,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.feedback, color: Colors.green),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "View Feedback",
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                              : Text("No feedback", style: TextStyle(color: Colors.grey[600])),
                         ],
                       ),
-
                     );
                   }).toList(),
                 ),
@@ -348,6 +415,36 @@ class WorkerSelectionDialogState extends State<WorkerSelectionDialog> {
           child: const Text("Assign"),
         ),
       ],
+    );
+  }
+}
+
+class FeedbackScreen extends StatelessWidget {
+  final String complaintDocId;
+  final String workerId;
+
+  const FeedbackScreen({super.key, required this.complaintDocId, required this.workerId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Worker Feedback")),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('complaints').doc(complaintDocId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          var data = snapshot.data!.data() as Map<String, dynamic>;
+          String feedback = data['workerFeedback']?[workerId] ?? "No feedback available";
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              feedback,
+              style: const TextStyle(fontSize: 16),
+            ),
+          );
+        },
+      ),
     );
   }
 }
