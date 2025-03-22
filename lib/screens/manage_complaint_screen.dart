@@ -123,7 +123,7 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
 
   Future<void> assignWorkers() async {
     if (complaintDocId == null || selectedWorkers.isEmpty) return;
-
+    final firestore = FirebaseFirestore.instance; // ✅ Add this line
     List<String> selectedWorkerIds = selectedWorkers.map((worker) => worker['workerId'] as String).toList();
 
     await FirebaseFirestore.instance
@@ -168,6 +168,11 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
             .update({
           'assignedComplaintNo': assignedComplaintNos,
         });
+        await firestore.collection('notifications').add({
+          'type': 'admin',
+          'message': "You have assigned name a task.",
+          'timestamp': FieldValue.serverTimestamp(),
+        });
       }
     }
   }
@@ -179,6 +184,7 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
         .collection('complaints')
         .doc(complaintDocId)
         .update({'status': 'Completed'});
+
 
     setState(() {
       complaintClosed = true;
@@ -202,6 +208,11 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
         });
       }
     }
+    await firestore.collection('notifications').add({
+      'type': 'admin',
+      'message': "You have approved the submission.",
+      'timestamp': FieldValue.serverTimestamp(),
+    });
 
     fetchComplaintDetails();
   }
