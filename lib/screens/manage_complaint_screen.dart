@@ -133,6 +133,18 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
       'status': 'In Progress',
       'assignedWorkers': FieldValue.arrayUnion(selectedWorkerIds),
     });
+    await sendNotificationOnStatusChange(
+      complaintId: complaintDocId!,
+      newStatus: 'In Progress',
+    );
+    for (String workerId in selectedWorkerIds) {
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'workerId': workerId,
+        'message': "A new complaint has been assigned to you.",
+        'timestamp': FieldValue.serverTimestamp(),
+        'type': 'worker',
+      });
+    }
 
     for (String workerId in selectedWorkerIds) {
       var workerQuery = await FirebaseFirestore.instance
@@ -171,6 +183,10 @@ class _ManageComplaintScreenState extends State<ManageComplaintScreen> {
     setState(() {
       complaintClosed = true;
     });
+    await sendNotificationOnStatusChange(
+      complaintId: complaintDocId!,
+      newStatus: 'Completed',
+    );
 
     fetchComplaintDetails();
   }
@@ -447,4 +463,41 @@ class FeedbackScreen extends StatelessWidget {
       ),
     );
   }
+}
+Future<void> sendNotificationOnStatusChange({
+  required String complaintId,
+  required String newStatus,
+}) async {
+  final firestore = FirebaseFirestore.instance;
+
+  final complaintDoc = await firestore.collection('complaints').doc(complaintId).get();
+  if (!complaintDoc.exists) return;
+
+  final data = complaintDoc.data()!;
+  final userId = data['userId'];
+  final assignedWorkers = List<String>.from(data['assignedWorkers'] ?? []);
+
+  String message = "";
+
+  if (newStatus == "In Progress") {
+    String workerName = "a worker";
+    if (assignedWorkers.isNotEmpty) {
+      final workerDoc = await firestore.collection("workers").doc(assignedWorkers.first).get();
+      if (workerDoc.exists && workerDoc.data()!.containsKey("name")) {
+        workerName = workerDoc["name"];
+      }
+    }
+    message = "Your complaint is in progress. Assigned to $workerName.";
+  } else if (newStatus == "Completed") {
+    message = "Your complaint has been resolved.";
+  } else if (newStatus == "Pending") {
+    message = "Your complaint has been submitted.";
+  }
+
+  await firestore.collection('notifications').add({
+    'userId': userId,
+    'message': message,
+    'timestamp': FieldValue.serverTimestamp(),
+    'type': 'user',
+  });
 }
