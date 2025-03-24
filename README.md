@@ -12,7 +12,7 @@ Tools that will be used -
 
 1. Flutter for frontend
 2. Firebase for analytics, cloud-based storage, and potentially updating the ML model dynamically if needed
-3. PyTorch: Vision Transformers and Computer Vision
+3. TensorFlow: MobileNetV2 (TensorFlow lite model) to predict criticality of a complaint image
 
 Key features of this application are –
 
