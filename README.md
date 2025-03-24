@@ -65,7 +65,7 @@ FixMyCity can be applied in:
 ## Installation & Setup
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/FixMyCity.git
+   git clone https://github.com/khushimadan11/FixMyCity.git
    ```
 2. Navigate to the project directory:
    ```sh
