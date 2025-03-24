@@ -1,38 +1,84 @@
-# Fix My City
-A Smart City Utility Management System
-(In progress)
+# FixMyCity 
 
-Problem Statement - The current manual system for reporting issues like Garbage collection, street light maintenance, pothole repairs and clogged drains is inefficient leading to delays and reduced public satisfaction
+## Introduction
+FixMyCity is a smart city utility management application designed to empower citizens by providing a seamless platform to report civic issues. The app allows users to register complaints by uploading images and details of affected areas, ensuring that local authorities can quickly identify and resolve issues.
 
-FixMyCity is designed to empower citizens by providing a seamless platform to report civic issues. This app allows users to easily register complaints by uploading images and details of the affected areas, ensuring that local authorities can quickly identify and address these problems. By enabling real-time tracking and updates on the status of their complaints, the app fosters transparency and accountability, contributing to the overall development and improvement of urban infrastructure. This solution aims to create smarter, safer, and more sustainable cities for all residents.
+With features like real-time tracking, role-based notifications, and machine learning-powered complaint analysis, FixMyCity enhances transparency, accountability, and efficiency in urban issue resolution.
 
-Figma link for Prototype - https://www.figma.com/design/wNC29tbOgDAyEqDqPiXp8U/FixMyCity?node-id=2-2&t=DT3fbb9MicQVj1gr-1
+### Figma link of Prototype - 
+https://www.figma.com/design/wNC29tbOgDAyEqDqPiXp8U/FixMyCity?node-id=2-2&t=DT3fbb9MicQVj1gr-1
 
-Tools that will be used - 
+## Features
+### For Users:
+- Register and log complaints with photo attachments.
+- Real-time complaint status updates.
+- Easy tracking of issue resolution.
 
-1. Flutter for frontend
-2. Firebase for analytics, cloud-based storage, and potentially updating the ML model dynamically if needed
-3. TensorFlow: MobileNetV2 (TensorFlow lite model) to predict criticality of a complaint image
+### For Administrators:
+- Receive and manage complaints.
+- Assign complaints to workers.
+- Mark complaints as resolved only after verification.
 
-Key features of this application are –
+### For Workers:
+- Receive assigned complaints.
+- Resolve complaints and submit proof with images and feedback.
+- Complaints can only be marked resolved after verification.
 
-For Users:
-1. Register and log complaints with photo attachments
-2. Real-time complaint status updates
-3. Easy tracking of issue resolution
+## Unique Features
+1. **Multi-Role Dynamic Workflow**: Custom interfaces and functionalities for users, workers, and admins.
+2. **Complaint Submission with Geotagging**: Automatically logs user location and provides Google Maps navigation for workers.
+3. **Visual Proof-Based Resolution**: Workers must upload completion images and feedback to ensure transparency.
+4. **Role-Based Notifications**: Real-time alerts for complaint updates, assignments, and resolutions.
+5. **Real-Time Status Tracking**: Live updates on complaint progress.
+6. **Admin Feedback Validation**: Admins review submissions and ML-based complaint criticality before closure.
+7. **Firestore-Driven Modular Data Architecture**: Structured storage for complaints, images, and feedback.
 
-For Administrators:
-1. Receive and manage complaints
-2. AI-powered workface allocation based on severity
-3. Mark complaints as resolved only after verification
+## Methodology
+1. **Requirement Analysis**: Identify key features (user login, complaint logging, admin dashboard).
+2. **UI/UX Design**: Create interactive prototypes using Figma.
+3. **Frontend Development**: Build app interface using Flutter and Dart.
+4. **Backend Setup**: Use Firebase Firestore for database management and Firebase Storage for image storage.
+5. **Machine Learning Integration**: Train an ML model (MobileNetV2) with TensorFlow to estimate workforce requirements based on complaint photos.
+6. **Testing**: Perform unit testing and integration testing using Flutter testing libraries.
+7. **Deployment**: Deploy on Play Store and App Store, integrate GitHub for version control.
+8. **Feedback & Iteration**: Gather user feedback and refine the app based on input.
 
+## Tools & Technologies Used
+- **Frontend**: Flutter (Dart)
+- **Backend**: Firebase Firestore (Database), Firebase Storage (Image Storage), Firebase Authentication
+- **Machine Learning**: TensorFlow (MobileNetV2 for complaint criticality prediction)
+- **UI/UX**: Figma
 
+## Scope
+FixMyCity can be applied in:
+- Urban city management systems.
+- Residential societies and gated communities.
+- Industrial zones and public spaces.
+- Integration with municipal corporations’ existing platforms.
 
+## Target Audience
+- Urban residents looking for quick solutions to daily issues.
+- Municipal corporations aiming for efficient resource management.
+- Contractors and workforce teams responsible for on-ground work.
+- Environmental organizations tracking urban cleanliness initiatives.
 
-
-
-
-
+## Installation & Setup
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/FixMyCity.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd FixMyCity
+   ```
+3. Install dependencies:
+   ```sh
+   flutter pub get
+   ```
+4. Run the application:
+   ```sh
+   flutter run
+   ```
 
 
 
