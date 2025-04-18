@@ -69,7 +69,7 @@ class UserHomeScreen extends StatelessWidget {
                     _buildProblemButton(
                         context, "Street Lights", "images/street-light.png"),
                     _buildProblemButton(
-                        context, "Stray Dogs", "images/dog.png"),
+                        context, "Potholes", "images/pothole.png"),
                     _buildProblemButton(
                         context, "Water Logging", "images/flood.png"),
                   ],
