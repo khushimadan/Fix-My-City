@@ -197,14 +197,14 @@ class ComplaintEntryScreenState extends State<ComplaintEntryScreen> {
       int complaintNumber = DateTime.now().millisecondsSinceEpoch;
 
       String category = "";
-      switch (widget.problem.toLowerCase()) {
-        case "stray dogs":
-          category = "Stray Dogs";
+      switch (widget.problem.trim().toLowerCase()) {
+        case "potholes":
+          category = "Potholes";
           break;
         case "garbage collection":
           category = "Garbage";
           break;
-        case "street lights":
+        case "streetlights":
           category = "Street Lights";
           break;
         case "water logging":
