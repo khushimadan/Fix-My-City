@@ -19,7 +19,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   final List<String> complaintTypes = [
     "Garbage",
     "Street Lights",
-    "Stray Dogs",
+    "Potholes",
     "Water Logging"
   ];
 
